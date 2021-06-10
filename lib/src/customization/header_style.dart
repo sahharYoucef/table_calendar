@@ -8,6 +8,8 @@ class HeaderStyle {
   /// Responsible for making title Text centered.
   final bool centerHeaderTitle;
 
+  final String headerFormat;
+
   /// Responsible for FormatButton visibility.
   final bool formatButtonVisible;
 
@@ -69,6 +71,7 @@ class HeaderStyle {
   final BoxDecoration decoration;
 
   const HeaderStyle({
+    this.headerFormat = "MMMMyy",
     this.centerHeaderTitle = false,
     this.formatButtonVisible = true,
     this.formatButtonShowsNext = true,
@@ -76,18 +79,24 @@ class HeaderStyle {
     this.titleTextStyle = const TextStyle(fontSize: 17.0),
     this.formatButtonTextStyle = const TextStyle(),
     this.formatButtonDecoration = const BoxDecoration(
-      border: const Border(top: BorderSide(), bottom: BorderSide(), left: BorderSide(), right: BorderSide()),
+      border: const Border(
+          top: BorderSide(),
+          bottom: BorderSide(),
+          left: BorderSide(),
+          right: BorderSide()),
       borderRadius: const BorderRadius.all(Radius.circular(12.0)),
     ),
     this.headerMargin,
     this.headerPadding = const EdgeInsets.symmetric(vertical: 8.0),
-    this.formatButtonPadding = const EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
+    this.formatButtonPadding =
+        const EdgeInsets.symmetric(horizontal: 10.0, vertical: 4.0),
     this.leftChevronPadding = const EdgeInsets.all(12.0),
     this.rightChevronPadding = const EdgeInsets.all(12.0),
     this.leftChevronMargin = const EdgeInsets.symmetric(horizontal: 8.0),
     this.rightChevronMargin = const EdgeInsets.symmetric(horizontal: 8.0),
     this.leftChevronIcon = const Icon(Icons.chevron_left, color: Colors.black),
-    this.rightChevronIcon = const Icon(Icons.chevron_right, color: Colors.black),
+    this.rightChevronIcon =
+        const Icon(Icons.chevron_right, color: Colors.black),
     this.decoration = const BoxDecoration(),
   });
 }
