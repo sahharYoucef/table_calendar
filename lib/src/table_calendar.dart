@@ -433,36 +433,37 @@ class _TableCalendarState<T> extends State<TableCalendar<T>> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        if (widget.headerVisible)
-          ValueListenableBuilder<DateTime>(
-            valueListenable: _focusedDay,
-            builder: (context, value, _) {
-              return CalendarHeader(
-                headerTitleBuilder: widget.calendarBuilders.headerTitleBuilder,
-                focusedMonth: value,
-                onLeftChevronTap: _onLeftChevronTap,
-                onRightChevronTap: _onRightChevronTap,
-                onHeaderTap: () => widget.onHeaderTapped?.call(value),
-                onHeaderLongPress: () =>
-                    widget.onHeaderLongPressed?.call(value),
-                headerStyle: widget.headerStyle,
-                availableCalendarFormats: widget.availableCalendarFormats,
-                calendarFormat: widget.calendarFormat,
-                locale: widget.locale,
-                onFormatButtonTap: (format) {
-                  assert(
-                    widget.onFormatChanged != null,
-                    'Using `FormatButton` without providing `onFormatChanged` will have no effect.',
-                  );
+        // if (widget.headerVisible)
+        //   ValueListenableBuilder<DateTime>(
+        //     valueListenable: _focusedDay,
+        //     builder: (context, value, _) {
+        //       return CalendarHeader(
+        //         headerTitleBuilder: widget.calendarBuilders.headerTitleBuilder,
+        //         focusedMonth: value,
+        //         onLeftChevronTap: _onLeftChevronTap,
+        //         onRightChevronTap: _onRightChevronTap,
+        //         onHeaderTap: () => widget.onHeaderTapped?.call(value),
+        //         onHeaderLongPress: () =>
+        //             widget.onHeaderLongPressed?.call(value),
+        //         headerStyle: widget.headerStyle,
+        //         availableCalendarFormats: widget.availableCalendarFormats,
+        //         calendarFormat: widget.calendarFormat,
+        //         locale: widget.locale,
+        //         onFormatButtonTap: (format) {
+        //           assert(
+        //             widget.onFormatChanged != null,
+        //             'Using `FormatButton` without providing `onFormatChanged` will have no effect.',
+        //           );
 
-                  widget.onFormatChanged?.call(format);
-                },
-              );
-            },
-          ),
+        //           widget.onFormatChanged?.call(format);
+        //         },
+        //       );
+        //     },
+        //   ),
         Flexible(
           flex: widget.shouldFillViewport ? 1 : 0,
           child: TableCalendarBase(
+            headerStyle: widget.headerStyle,
             onCalendarCreated: (pageController) {
               _pageController = pageController;
               widget.onCalendarCreated?.call(pageController);

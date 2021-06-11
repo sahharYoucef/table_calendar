@@ -27,6 +27,13 @@ class _TableRangeExampleState extends State<TableRangeExample> {
         title: Text('TableCalendar - Range'),
       ),
       body: TableCalendar(
+        headerStyle: HeaderStyle(
+          rightChevronVisible: false,
+          headerPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          leftChevronVisible: false,
+          formatButtonVisible: false,
+          formatButtonShowsNext: false,
+        ),
         firstDay: kFirstDay,
         lastDay: kLastDay,
         focusedDay: _focusedDay,

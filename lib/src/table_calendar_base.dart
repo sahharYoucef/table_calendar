@@ -4,6 +4,7 @@
 import 'package:flutter/material.dart';
 import 'package:simple_gesture_detector/simple_gesture_detector.dart';
 
+import '../table_calendar.dart';
 import 'shared/utils.dart';
 import 'widgets/calendar_core.dart';
 
@@ -14,6 +15,7 @@ class TableCalendarBase extends StatefulWidget {
   final CalendarFormat calendarFormat;
   final DayBuilder? dowBuilder;
   final FocusedDayBuilder dayBuilder;
+  final HeaderStyle? headerStyle;
   final double? dowHeight;
   final double rowHeight;
   final bool sixWeekMonthsEnforced;
@@ -60,6 +62,7 @@ class TableCalendarBase extends StatefulWidget {
     this.onVerticalSwipe,
     this.onPageChanged,
     this.onCalendarCreated,
+    this.headerStyle,
   })  : assert(!dowVisible || (dowHeight != null && dowBuilder != null)),
         assert(isSameDay(focusedDay, firstDay) || focusedDay.isAfter(firstDay)),
         assert(isSameDay(focusedDay, lastDay) || focusedDay.isBefore(lastDay)),
@@ -73,6 +76,8 @@ class _TableCalendarBaseState extends State<TableCalendarBase>
     with SingleTickerProviderStateMixin {
   late final ValueNotifier<double> _pageHeight;
   late final PageController _pageController;
+  late final ScrollController headerScrollController;
+
   late DateTime _focusedDay;
   late int _previousIndex;
   late bool _pageCallbackDisabled;
@@ -88,11 +93,26 @@ class _TableCalendarBaseState extends State<TableCalendarBase>
     final initialPage = _calculateFocusedPage(
         widget.calendarFormat, widget.firstDay, _focusedDay);
 
-    _pageController = PageController(initialPage: initialPage);
+    _pageController = PageController(initialPage: initialPage)
+      ..addListener(() {
+        var offset = _pageController.offset / MediaQuery.of(context).size.width;
+        headerScrollController
+            .jumpTo(offset * MediaQuery.of(context).size.width * 0.9);
+      });
     widget.onCalendarCreated?.call(_pageController);
 
     _previousIndex = initialPage;
     _pageCallbackDisabled = false;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final initialPage = _calculateFocusedPage(
+        widget.calendarFormat, widget.firstDay, _focusedDay);
+    headerScrollController = ScrollController(
+        initialScrollOffset:
+            initialPage * MediaQuery.of(context).size.width * 0.9);
   }
 
   @override
@@ -170,14 +190,16 @@ class _TableCalendarBaseState extends State<TableCalendarBase>
                 curve: widget.formatAnimationCurve,
                 alignment: Alignment.topCenter,
                 child: SizedBox(
-                  height: height,
+                  height: height + 50,
                   child: child,
                 ),
               );
             },
             child: CalendarCore(
+              headerStyle: widget.headerStyle,
               constraints: constraints,
               pageController: _pageController,
+              headerScrollController: headerScrollController,
               scrollPhysics: _canScrollHorizontally
                   ? PageScrollPhysics()
                   : NeverScrollableScrollPhysics(),
