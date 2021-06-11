@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:table_calendar/src/widgets/sliding_header.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 import '../shared/utils.dart';
@@ -64,30 +65,14 @@ class CalendarCore extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Container(
-          height: 50,
-          child: IgnorePointer(
-            ignoring: true,
-            child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                controller: headerScrollController,
-                physics: NeverScrollableScrollPhysics(),
-                itemCount: _getPageCount(calendarFormat, firstDay, lastDay) + 1,
-                itemBuilder: (context, index) {
-                  return Container(
-                    padding: EdgeInsets.only(left: 16),
-                    height: 50,
-                    width: MediaQuery.of(context).size.width * 0.9,
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      _getPageCount(calendarFormat, firstDay, lastDay) == index
-                          ? '${DateFormat('MMMM yy').format(_getBaseDay(calendarFormat, index).add(Duration(days: 31)))}'
-                          : '${DateFormat('MMMM yy').format(_getBaseDay(calendarFormat, index))}',
-                      style: headerStyle!.titleTextStyle,
-                    ),
-                  );
-                }),
-          ),
+        SlidingHeader(
+          headerScrollController: headerScrollController!,
+          pageController: pageController!,
+          pageCount: _getPageCount(calendarFormat, firstDay, lastDay),
+          firstDay: firstDay,
+          lastDay: lastDay,
+          headerStyle: headerStyle,
+          calendarFormat: calendarFormat,
         ),
         Container(
           height: height,
