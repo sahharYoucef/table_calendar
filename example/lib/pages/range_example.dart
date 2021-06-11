@@ -54,6 +54,7 @@ class _TableRangeExampleState extends State<TableRangeExample> {
           }
         },
         onRangeSelected: (start, end, focusedDay) {
+          print(focusedDay);
           setState(() {
             _selectedDay = null;
             _focusedDay = focusedDay;

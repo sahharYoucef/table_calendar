@@ -14,6 +14,7 @@ typedef _OnCalendarPageChanged = void Function(
 class CalendarCore extends StatelessWidget {
   final DateTime? focusedDay;
   final DateTime firstDay;
+  final double height;
   final DateTime lastDay;
   final CalendarFormat calendarFormat;
   final DayBuilder? dowBuilder;
@@ -41,6 +42,7 @@ class CalendarCore extends StatelessWidget {
     required this.firstDay,
     required this.lastDay,
     required this.constraints,
+    required this.height,
     this.dowHeight,
     this.rowHeight,
     this.startingDayOfWeek = StartingDayOfWeek.sunday,
@@ -88,7 +90,7 @@ class CalendarCore extends StatelessWidget {
           ),
         ),
         Container(
-          height: 400,
+          height: height,
           child: PageView.builder(
             controller: pageController,
             physics: scrollPhysics,
