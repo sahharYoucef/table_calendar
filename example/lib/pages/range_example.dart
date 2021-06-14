@@ -30,6 +30,7 @@ class _TableRangeExampleState extends State<TableRangeExample> {
         headerStyle: HeaderStyle(
           rightChevronVisible: false,
           headerPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          titleTextStyle: TextStyle(color: Colors.red),
           leftChevronVisible: false,
           formatButtonVisible: false,
           formatButtonShowsNext: false,

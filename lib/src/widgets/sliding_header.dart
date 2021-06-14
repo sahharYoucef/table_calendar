@@ -54,17 +54,33 @@ class _SlidingHeaderState extends State<SlidingHeader> {
               return Opacity(
                 opacity: opacity,
                 child: Container(
-                  padding: EdgeInsets.only(left: 16),
-                  height: 50,
-                  width: MediaQuery.of(context).size.width * 0.80,
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    widget.pageCount == index
-                        ? '${DateFormat('MMMM yy').format(_getBaseDay(widget.calendarFormat!, index).add(Duration(days: 31)))}'
-                        : '${DateFormat('MMMM yy').format(_getBaseDay(widget.calendarFormat!, index))}',
-                    style: widget.headerStyle!.titleTextStyle,
-                  ),
-                ),
+                    padding: EdgeInsets.only(left: 16),
+                    height: 50,
+                    width: MediaQuery.of(context).size.width * 0.80,
+                    alignment: Alignment.centerLeft,
+                    child: RichText(
+                        text: TextSpan(children: [
+                      TextSpan(
+                        text: widget.pageCount == index
+                            ? '${DateFormat('MMMM').format(_getBaseDay(widget.calendarFormat!, index).add(Duration(days: 31)))}'
+                            : '${DateFormat('MMMM').format(_getBaseDay(widget.calendarFormat!, index))}',
+                        style: widget.headerStyle!.titleTextStyle,
+                      ),
+                      WidgetSpan(
+                        child: const SizedBox(
+                          width: 6,
+                        ),
+                      ),
+                      TextSpan(
+                        text: widget.pageCount == index
+                            ? '${DateFormat('yy').format(_getBaseDay(widget.calendarFormat!, index).add(Duration(days: 31)))}'
+                            : '${DateFormat('yy').format(_getBaseDay(widget.calendarFormat!, index))}',
+                        style: widget.headerStyle!.titleTextStyle.copyWith(
+                            color: (widget.headerStyle!.titleTextStyle.color ??
+                                    Colors.white)
+                                .withOpacity(0.2)),
+                      ),
+                    ]))),
               );
             }),
       ),
