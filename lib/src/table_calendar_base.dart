@@ -97,7 +97,7 @@ class _TableCalendarBaseState extends State<TableCalendarBase>
       ..addListener(() {
         var offset = _pageController.offset / MediaQuery.of(context).size.width;
         headerScrollController
-            .jumpTo(offset * MediaQuery.of(context).size.width * 0.9);
+            .jumpTo(offset * MediaQuery.of(context).size.width * 0.80);
       });
     widget.onCalendarCreated?.call(_pageController);
 
@@ -112,7 +112,7 @@ class _TableCalendarBaseState extends State<TableCalendarBase>
         widget.calendarFormat, widget.firstDay, _focusedDay);
     headerScrollController = ScrollController(
         initialScrollOffset:
-            initialPage * MediaQuery.of(context).size.width * 0.9);
+            initialPage * MediaQuery.of(context).size.width * 0.80);
   }
 
   @override
@@ -140,6 +140,7 @@ class _TableCalendarBaseState extends State<TableCalendarBase>
     _pageController.dispose();
     _pageHeight.dispose();
     super.dispose();
+    headerScrollController.dispose();
   }
 
   bool get _canScrollHorizontally =>
@@ -192,7 +193,7 @@ class _TableCalendarBaseState extends State<TableCalendarBase>
               );
             },
             child: CalendarCore(
-              height: 300,
+              height: _pageHeight.value,
               headerStyle: widget.headerStyle,
               constraints: constraints,
               pageController: _pageController,

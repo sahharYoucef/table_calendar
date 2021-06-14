@@ -56,7 +56,7 @@ class _SlidingHeaderState extends State<SlidingHeader> {
                 child: Container(
                   padding: EdgeInsets.only(left: 16),
                   height: 50,
-                  width: MediaQuery.of(context).size.width * 0.9,
+                  width: MediaQuery.of(context).size.width * 0.80,
                   alignment: Alignment.centerLeft,
                   child: Text(
                     widget.pageCount == index
