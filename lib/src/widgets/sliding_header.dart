@@ -10,7 +10,7 @@ class SlidingHeader extends StatefulWidget {
   final DateTime lastDay;
   final HeaderStyle? headerStyle;
   final CalendarFormat? calendarFormat;
-  final EdgeInsets headerPadding;
+  final EdgeInsets? headerPadding;
 
   const SlidingHeader({
     Key? key,
@@ -19,8 +19,8 @@ class SlidingHeader extends StatefulWidget {
     required this.pageController,
     required this.firstDay,
     required this.lastDay,
-    this.headerPadding = EdgeInsets.zero,
     this.headerStyle,
+    this.headerPadding = EdgeInsets.zero,
     this.calendarFormat,
   }) : super(key: key);
   @override

@@ -35,6 +35,8 @@ class TableCalendar<T> extends StatefulWidget {
   /// If nothing is provided, a default locale will be used.
   final dynamic locale;
 
+  final EdgeInsets? headerPadding;
+
   /// The start of the selected day range.
   final DateTime? rangeStartDay;
 
@@ -199,6 +201,7 @@ class TableCalendar<T> extends StatefulWidget {
     required DateTime firstDay,
     required DateTime lastDay,
     this.locale,
+    this.headerPadding,
     this.rangeStartDay,
     this.rangeEndDay,
     this.weekendDays = const [DateTime.saturday, DateTime.sunday],
@@ -463,6 +466,7 @@ class _TableCalendarState<T> extends State<TableCalendar<T>> {
         Flexible(
           flex: widget.shouldFillViewport ? 1 : 0,
           child: TableCalendarBase(
+            headerPadding: widget.headerPadding,
             headerStyle: widget.headerStyle,
             onCalendarCreated: (pageController) {
               _pageController = pageController;

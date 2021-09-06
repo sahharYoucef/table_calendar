@@ -34,6 +34,7 @@ class CalendarCore extends StatelessWidget {
   final ScrollController? headerScrollController;
   final ScrollPhysics? scrollPhysics;
   final _OnCalendarPageChanged onPageChanged;
+  final EdgeInsets? headerPadding;
 
   const CalendarCore({
     Key? key,
@@ -58,6 +59,7 @@ class CalendarCore extends StatelessWidget {
     this.rowDecoration,
     this.scrollPhysics,
     this.headerStyle,
+    this.headerPadding,
   })  : assert(!dowVisible || (dowHeight != null && dowBuilder != null)),
         super(key: key);
 
@@ -72,6 +74,7 @@ class CalendarCore extends StatelessWidget {
           firstDay: firstDay,
           lastDay: lastDay,
           headerStyle: headerStyle,
+          headerPadding: headerPadding,
           calendarFormat: calendarFormat,
         ),
         Container(

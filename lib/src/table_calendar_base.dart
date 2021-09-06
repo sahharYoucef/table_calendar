@@ -31,9 +31,11 @@ class TableCalendarBase extends StatefulWidget {
   final SwipeCallback? onVerticalSwipe;
   final void Function(DateTime focusedDay)? onPageChanged;
   final void Function(PageController pageController)? onCalendarCreated;
+  final EdgeInsets? headerPadding;
 
   TableCalendarBase({
     Key? key,
+    this.headerPadding,
     required this.firstDay,
     required this.lastDay,
     required this.focusedDay,
@@ -193,6 +195,7 @@ class _TableCalendarBaseState extends State<TableCalendarBase>
               );
             },
             child: CalendarCore(
+              headerPadding: widget.headerPadding,
               height: _pageHeight.value,
               headerStyle: widget.headerStyle,
               constraints: constraints,
