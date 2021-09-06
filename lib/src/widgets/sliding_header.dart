@@ -10,6 +10,7 @@ class SlidingHeader extends StatefulWidget {
   final DateTime lastDay;
   final HeaderStyle? headerStyle;
   final CalendarFormat? calendarFormat;
+  final EdgeInsets headerPadding;
 
   const SlidingHeader({
     Key? key,
@@ -18,6 +19,7 @@ class SlidingHeader extends StatefulWidget {
     required this.pageController,
     required this.firstDay,
     required this.lastDay,
+    this.headerPadding = EdgeInsets.zero,
     this.headerStyle,
     this.calendarFormat,
   }) : super(key: key);
@@ -42,6 +44,7 @@ class _SlidingHeaderState extends State<SlidingHeader> {
   Widget build(BuildContext context) {
     return Container(
       height: 50,
+      padding: widget.headerPadding,
       child: IgnorePointer(
         ignoring: true,
         child: ListView.builder(

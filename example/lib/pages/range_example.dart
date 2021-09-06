@@ -27,6 +27,7 @@ class _TableRangeExampleState extends State<TableRangeExample> {
         title: Text('TableCalendar - Range'),
       ),
       body: TableCalendar(
+        headerVisible: true,
         headerStyle: HeaderStyle(
           rightChevronVisible: false,
           headerPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -36,7 +37,9 @@ class _TableRangeExampleState extends State<TableRangeExample> {
           formatButtonShowsNext: false,
         ),
         calendarStyle: CalendarStyle(
-          rangeHighlightColor: Theme.of(context).accentColor,
+          cellMargin: EdgeInsets.symmetric(vertical: 2),
+          markerMargin: EdgeInsets.zero,
+          rangeHighlightColor: Colors.transparent,
         ),
         firstDay: kFirstDay,
         lastDay: kLastDay,
@@ -46,6 +49,7 @@ class _TableRangeExampleState extends State<TableRangeExample> {
         rangeEndDay: _rangeEnd,
         calendarFormat: _calendarFormat,
         rangeSelectionMode: _rangeSelectionMode,
+        availableGestures: AvailableGestures.horizontalSwipe,
         onDaySelected: (selectedDay, focusedDay) {
           if (!isSameDay(_selectedDay, selectedDay)) {
             setState(() {
@@ -57,8 +61,8 @@ class _TableRangeExampleState extends State<TableRangeExample> {
             });
           }
         },
+        startingDayOfWeek: StartingDayOfWeek.monday,
         onRangeSelected: (start, end, focusedDay) {
-          print(focusedDay);
           setState(() {
             _selectedDay = null;
             _focusedDay = focusedDay;
@@ -76,131 +80,127 @@ class _TableRangeExampleState extends State<TableRangeExample> {
         },
         onPageChanged: (focusedDay) {
           _focusedDay = focusedDay;
+          setState(() {});
         },
-        // calendarBuilders: CalendarBuilders(
-        //   selectedBuilder: (context, date, _) {
-        //     return _date(date: date, isSelectedDay: true);
-        //   },
-        //   defaultBuilder: (context, date, _) {
-        //     return _date(date: date, isSelectedDay: false);
-        //   },
-        //   disabledBuilder: (context, date, _) {
-        //     return Container(
-        //       padding: const EdgeInsets.only(bottom: 3.0),
-        //       child: Center(
-        //         child: Column(
-        //           mainAxisAlignment: MainAxisAlignment.center,
-        //           children: <Widget>[
-        //             Text(
-        //               '${date.day}',
-        //               style: TextStyle(
-        //                 fontWeight: FontWeight.w600,
-        //                 color: Colors.black.withOpacity(0.2),
-        //               ),
-        //             ),
-        //           ],
-        //         ),
-        //       ),
-        //     );
-        //   },
-        // ),
-      ),
-    );
-  }
-
-  Widget _date({required DateTime date, required bool isSelectedDay}) {
-    String price;
-
-    var outerDecoration;
-    var decoration;
-
-    // TRUE If ==> Departure date not selected, and Current Selected Date is Today's date
-    var isTodaySDate = _rangeStart == null;
-
-    decoration = BoxDecoration(
-      color: isTodaySDate
-          ? Colors.red.withOpacity(0.03)
-          : isSelectedDay
-              ? Colors.red
-              : Colors.transparent,
-      shape: BoxShape.circle,
-    );
-
-    // add outer ring to today
-    if (!isSelectedDay) {
-      decoration = BoxDecoration(
-          shape: BoxShape.circle, color: Colors.red.withOpacity(0.03));
-    }
-
-    /// If we have return date ,
-    ///
-    /// Highlight All Dates Between Departure <--> Return
-    if (_rangeEnd != null &&
-        _rangeEnd!.compareTo(_rangeStart!) != 0 &&
-        (_rangeEnd!.compareTo(date) >= 0) &&
-        (_rangeStart!.compareTo(date) <= 0)) {
-      // Change Flag To Highlight Selected days text values
-      isSelectedDay = _rangeStart!.difference(date).inDays == 0 ||
-          _rangeEnd!.difference(date).inDays == 0;
-
-      var borderRadius;
-      // ADD LEFT-Radius for departureDate
-      if (_rangeStart!.difference(date).inDays == 0) {
-        borderRadius = BorderRadius.only(
-          bottomLeft: Radius.circular(40.0),
-          topLeft: Radius.circular(40.0),
-        );
-      }
-      // ADD RIGHT-Radius for returnDate
-      if (_rangeEnd!.difference(date).inDays == 0) {
-        borderRadius = BorderRadius.only(
-          bottomRight: Radius.circular(40.0),
-          topRight: Radius.circular(40.0),
-        );
-      }
-      // Outer Container decoration
-      outerDecoration = BoxDecoration(
-        color: Colors.red.withOpacity(0.08),
-        shape: BoxShape.rectangle,
-        borderRadius: borderRadius,
-      );
-      // Inner Container decoration
-      decoration = BoxDecoration(
-        color: Colors.transparent,
-        shape: BoxShape.circle,
-      );
-      // ADD Dark-Background for selected days
-      if (_rangeStart!.difference(date).inDays == 0 ||
-          _rangeEnd!.difference(date).inDays == 0) {
-        decoration = BoxDecoration(
-          color: Colors.red,
-          shape: BoxShape.circle,
-        );
-      }
-    }
-    return Container(
-      width: 40,
-      height: 40,
-      // margin: const EdgeInsets.symmetric(vertical: 3),
-      decoration: outerDecoration,
-      child: Container(
-        padding: const EdgeInsets.only(bottom: 3.0),
-        decoration: decoration,
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Text(
-                '${date.day}',
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  color: isSelectedDay
-                      ? (isTodaySDate ? Colors.black : Colors.white)
-                      : Colors.black,
+        rowHeight: 50,
+        calendarBuilders: CalendarBuilders(
+          rangeStartBuilder: (context, date, _) {
+            return Container(
+                margin: EdgeInsets.only(
+                  left: 6,
+                  top: 2,
+                  bottom: 2,
                 ),
+                decoration: BoxDecoration(
+                    color: _rangeEnd != null ? Colors.red : Colors.transparent,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(50),
+                      bottomLeft: Radius.circular(50),
+                      topRight: Radius.circular(
+                          date.weekday != 7 && _rangeEnd != null ? 0 : 50),
+                      bottomRight: Radius.circular(
+                          date.weekday != 7 && _rangeEnd != null ? 0 : 50),
+                    )),
+                child: Container(
+                  margin: EdgeInsets.only(
+                    right: 6,
+                  ),
+                  decoration: BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(50),
+                        bottomLeft: Radius.circular(50),
+                        topRight: Radius.circular(50),
+                        bottomRight: Radius.circular(50),
+                      )),
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          '${date.day}',
+                        ),
+                      ],
+                    ),
+                  ),
+                ));
+          },
+          rangeEndBuilder: (context, date, _) {
+            return Container(
+                margin: EdgeInsets.only(
+                  right: 6,
+                  top: 2,
+                  bottom: 2,
+                ),
+                decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(
+                          date.weekday != 1 && _rangeStart != null ? 0 : 50),
+                      bottomLeft: Radius.circular(
+                          date.weekday != 1 && _rangeStart != null ? 0 : 50),
+                      topRight: Radius.circular(50),
+                      bottomRight: Radius.circular(50),
+                    )),
+                child: Container(
+                  margin: EdgeInsets.only(
+                    left: 6,
+                  ),
+                  decoration: BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(50),
+                        bottomLeft: Radius.circular(50),
+                        topRight: Radius.circular(50),
+                        bottomRight: Radius.circular(50),
+                      )),
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          '${date.day}',
+                        ),
+                      ],
+                    ),
+                  ),
+                ));
+          },
+          disabledBuilder: (context, date, _) {
+            return Container(
+                child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Text(
+                    '${date.day}',
+                  ),
+                ],
               ),
-            ],
-          ),
+            ));
+          },
+          withinRangeBuilder: (context, date, _) {
+            return Container(
+                margin: EdgeInsets.only(top: 2, bottom: 2),
+                decoration: BoxDecoration(
+                    color: Colors.red,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(date.weekday != 1 ? 0 : 50),
+                      bottomLeft: Radius.circular(date.weekday != 1 ? 0 : 50),
+                      topRight: Radius.circular(date.weekday != 7 ? 0 : 50),
+                      bottomRight: Radius.circular(date.weekday != 7 ? 0 : 50),
+                    )),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Text(
+                        '${date.day}',
+                      ),
+                    ],
+                  ),
+                ));
+          },
         ),
       ),
     );
