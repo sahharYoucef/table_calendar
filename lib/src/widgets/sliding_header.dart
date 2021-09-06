@@ -44,7 +44,7 @@ class _SlidingHeaderState extends State<SlidingHeader> {
   Widget build(BuildContext context) {
     return Container(
       height: 50,
-      padding: widget.headerPadding,
+      margin: widget.headerPadding,
       child: IgnorePointer(
         ignoring: true,
         child: ListView.builder(
