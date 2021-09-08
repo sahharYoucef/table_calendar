@@ -74,15 +74,18 @@ class _SlidingHeaderState extends State<SlidingHeader> {
                           width: 6,
                         ),
                       ),
-                      TextSpan(
-                        text: widget.pageCount == index
-                            ? '${DateFormat('yy').format(_getBaseDay(widget.calendarFormat!, index).add(Duration(days: 31)))}'
-                            : '${DateFormat('yy').format(_getBaseDay(widget.calendarFormat!, index))}',
-                        style: widget.headerStyle!.titleTextStyle.copyWith(
-                            color: (widget.headerStyle!.titleTextStyle.color ??
-                                    Colors.white)
-                                .withOpacity(0.2)),
-                      ),
+                      if (_getBaseDay(widget.calendarFormat!, index).year !=
+                          DateTime.now().year)
+                        TextSpan(
+                          text: widget.pageCount == index
+                              ? '${DateFormat('yy').format(_getBaseDay(widget.calendarFormat!, index).add(Duration(days: 31)))}'
+                              : '${DateFormat('yy').format(_getBaseDay(widget.calendarFormat!, index))}',
+                          style: widget.headerStyle!.titleTextStyle.copyWith(
+                              color:
+                                  (widget.headerStyle!.titleTextStyle.color ??
+                                          Colors.white)
+                                      .withOpacity(0.2)),
+                        ),
                     ]))),
               );
             }),
