@@ -58,6 +58,11 @@ class TableCalendar<T> extends StatefulWidget {
   /// Days after it will use `disabledStyle` and trigger `onDisabledDayTapped` callback.
   final DateTime lastDay;
 
+  /// DateTime that will be treated as today. Defaults to `DateTime.now()`.
+  ///
+  /// Overriding this property might be useful for testing.
+  final DateTime? currentDay;
+
   /// List of days treated as weekend days.
   /// Use built-in `DateTime` weekday constants (e.g. `DateTime.monday`) instead of `int` literals (e.g. `1`).
   final List<int> weekendDays;
@@ -86,8 +91,12 @@ class TableCalendar<T> extends StatefulWidget {
   final bool daysOfWeekVisible;
 
   /// When set to true, tapping on an outside day in `CalendarFormat.month` format
-  /// will jump to a page related to the tapped month.
+  /// will jump to the calendar page of the tapped month.
   final bool pageJumpingEnabled;
+
+  /// When set to true, updating the `focusedDay` will display a scrolling animation
+  /// if the currently visible calendar page is changed.
+  final bool pageAnimationEnabled;
 
   /// When set to true, `CalendarFormat.month` will always display six weeks,
   /// even if the content would fit in less.
@@ -102,16 +111,16 @@ class TableCalendar<T> extends StatefulWidget {
   /// Used for setting the height of `TableCalendar`'s days of week row.
   final double daysOfWeekHeight;
 
-  /// Specifies the duration of size animation that takes place when `calendarFormat` is changed.
+  /// Specifies the duration of size animation that takes place whenever `calendarFormat` is changed.
   final Duration formatAnimationDuration;
 
-  /// Specifies the curve of size animation that takes place when `calendarFormat` is changed.
+  /// Specifies the curve of size animation that takes place whenever `calendarFormat` is changed.
   final Curve formatAnimationCurve;
 
-  /// Specifies the duration of page change animation that takes place when left or right chevron is tapped.
+  /// Specifies the duration of scrolling animation that takes place whenever the visible calendar page is changed.
   final Duration pageAnimationDuration;
 
-  /// Specifies the curve of page change animation that takes place when left or right chevron is tapped.
+  /// Specifies the curve of scrolling animation that takes place whenever the visible calendar page is changed.
   final Curve pageAnimationCurve;
 
   /// `TableCalendar` will start weeks with provided day.
@@ -200,6 +209,7 @@ class TableCalendar<T> extends StatefulWidget {
     required DateTime focusedDay,
     required DateTime firstDay,
     required DateTime lastDay,
+    DateTime? currentDay,
     this.locale,
     this.headerPadding,
     this.rangeStartDay,
@@ -214,6 +224,7 @@ class TableCalendar<T> extends StatefulWidget {
     this.headerVisible = true,
     this.daysOfWeekVisible = true,
     this.pageJumpingEnabled = false,
+    this.pageAnimationEnabled = true,
     this.sixWeekMonthsEnforced = false,
     this.shouldFillViewport = false,
     this.rowHeight = 52.0,
@@ -257,6 +268,7 @@ class TableCalendar<T> extends StatefulWidget {
         focusedDay = normalizeDate(focusedDay),
         firstDay = normalizeDate(firstDay),
         lastDay = normalizeDate(lastDay),
+        currentDay = currentDay ?? DateTime.now(),
         super(key: key);
 
   @override
@@ -480,11 +492,15 @@ class _TableCalendarState<T> extends State<TableCalendar<T>> {
             startingDayOfWeek: widget.startingDayOfWeek,
             dowDecoration: widget.daysOfWeekStyle.decoration,
             rowDecoration: widget.calendarStyle.rowDecoration,
+            tableBorder: widget.calendarStyle.tableBorder,
             dowVisible: widget.daysOfWeekVisible,
             dowHeight: widget.daysOfWeekHeight,
             rowHeight: widget.rowHeight,
             formatAnimationDuration: widget.formatAnimationDuration,
             formatAnimationCurve: widget.formatAnimationCurve,
+            pageAnimationEnabled: widget.pageAnimationEnabled,
+            pageAnimationDuration: widget.pageAnimationDuration,
+            pageAnimationCurve: widget.pageAnimationCurve,
             availableCalendarFormats: widget.availableCalendarFormats,
             simpleSwipeConfig: widget.simpleSwipeConfig,
             sixWeekMonthsEnforced: widget.sixWeekMonthsEnforced,
@@ -506,11 +522,13 @@ class _TableCalendarState<T> extends State<TableCalendar<T>> {
                     _isWeekend(day, weekendDays: widget.weekendDays);
 
                 dowCell = Center(
-                  child: Text(
-                    weekdayString,
-                    style: isWeekend
-                        ? widget.daysOfWeekStyle.weekendStyle
-                        : widget.daysOfWeekStyle.weekdayStyle,
+                  child: ExcludeSemantics(
+                    child: Text(
+                      weekdayString,
+                      style: isWeekend
+                          ? widget.daysOfWeekStyle.weekendStyle
+                          : widget.daysOfWeekStyle.weekdayStyle,
+                    ),
                   ),
                 );
               }
@@ -577,11 +595,12 @@ class _TableCalendarState<T> extends State<TableCalendar<T>> {
           children.add(rangeHighlight);
         }
 
-        final isToday = isSameDay(day, DateTime.now());
+        final isToday = isSameDay(day, widget.currentDay);
         final isDisabled = _isDayDisabled(day);
         final isWeekend = _isWeekend(day, weekendDays: widget.weekendDays);
 
         Widget content = CellContent(
+          key: ValueKey('CellContent-${day.year}-${day.month}-${day.day}'),
           day: day,
           focusedDay: focusedDay,
           calendarStyle: widget.calendarStyle,
@@ -596,6 +615,7 @@ class _TableCalendarState<T> extends State<TableCalendar<T>> {
           isDisabled: isDisabled,
           isWeekend: isWeekend,
           isHoliday: widget.holidayPredicate?.call(day) ?? false,
+          locale: widget.locale,
         );
 
         children.add(content);

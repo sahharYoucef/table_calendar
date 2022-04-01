@@ -49,6 +49,12 @@ class CalendarStyle {
   /// Margin of each individual day cell.
   final EdgeInsets cellMargin;
 
+  /// Padding of each individual day cell.
+  final EdgeInsets cellPadding;
+
+  /// Alignment of each individual day cell.
+  final AlignmentGeometry cellAlignment;
+
   /// Proportion of range selection highlight size in relation to day cell size.
   ///
   /// Includes `cellMargin` for calculations.
@@ -62,13 +68,13 @@ class CalendarStyle {
   /// Affects only `CalendarFormat.month`.
   final bool outsideDaysVisible;
 
-  /// Determines if a day cell that matches `DateTime.now()` should be highlighted.
+  /// Determines if a day cell that matches the current day should be highlighted.
   final bool isTodayHighlighted;
 
-  /// TextStyle for a day cell that matches `DateTime.now()`.
+  /// TextStyle for a day cell that matches the current day.
   final TextStyle todayTextStyle;
 
-  /// Decoration for a day cell that matches `DateTime.now()`.
+  /// Decoration for a day cell that matches the current day.
   final Decoration todayDecoration;
 
   /// TextStyle for day cells that are currently marked as selected by `selectedDayPredicate`.
@@ -136,6 +142,9 @@ class CalendarStyle {
   /// Decoration for each interior row of day cells.
   final Decoration rowDecoration;
 
+  /// Border for the internal `Table` widget.
+  final TableBorder tableBorder;
+
   /// Creates a `CalendarStyle` used by `TableCalendar` widget.
   const CalendarStyle({
     this.isTodayHighlighted = true,
@@ -150,6 +159,8 @@ class CalendarStyle {
     this.markersAlignment = Alignment.bottomCenter,
     this.markersMaxCount = 4,
     this.cellMargin = const EdgeInsets.all(6.0),
+    this.cellPadding = const EdgeInsets.all(0),
+    this.cellAlignment = Alignment.center,
     this.markersOffset = const PositionedOffset(),
     this.rangeHighlightColor = const Color(0xFFBBDDFF),
     this.markerDecoration = const BoxDecoration(
@@ -206,6 +217,7 @@ class CalendarStyle {
     this.defaultTextStyle = const TextStyle(),
     this.defaultDecoration = const BoxDecoration(shape: BoxShape.circle),
     this.rowDecoration = const BoxDecoration(),
+    this.tableBorder = const TableBorder(),
   });
 }
 
