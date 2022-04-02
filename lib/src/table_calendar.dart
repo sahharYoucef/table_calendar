@@ -15,6 +15,7 @@ import 'shared/utils.dart';
 import 'table_calendar_base.dart';
 import 'widgets/calendar_header.dart';
 import 'widgets/cell_content.dart';
+import 'widgets/sliding_header.dart';
 
 /// Signature for `onDaySelected` callback. Contains the selected day and focused day.
 typedef OnDaySelected = void Function(
@@ -84,6 +85,8 @@ class TableCalendar<T> extends StatefulWidget {
 
   /// Determines the visibility of calendar header.
   final bool headerVisible;
+
+  final bool slidingHeader;
 
   /// Determines the visibility of the row of days of the week.
   final bool daysOfWeekVisible;
@@ -219,6 +222,7 @@ class TableCalendar<T> extends StatefulWidget {
       CalendarFormat.week: 'Week',
     },
     this.headerVisible = true,
+    this.slidingHeader = true,
     this.daysOfWeekVisible = true,
     this.pageJumpingEnabled = false,
     this.pageAnimationEnabled = true,
@@ -446,39 +450,43 @@ class _TableCalendarState<T> extends State<TableCalendar<T>> {
     return Column(
       children: [
         if (widget.headerVisible)
-          ValueListenableBuilder<DateTime>(
-            valueListenable: _focusedDay,
-            builder: (context, value, _) {
-              return CalendarHeader(
-                headerTitleBuilder: widget.calendarBuilders.headerTitleBuilder,
-                focusedMonth: value,
-                onLeftChevronTap: _onLeftChevronTap,
-                onRightChevronTap: _onRightChevronTap,
-                onHeaderTap: () => widget.onHeaderTapped?.call(value),
-                onHeaderLongPress: () =>
-                    widget.onHeaderLongPressed?.call(value),
-                headerStyle: widget.headerStyle,
-                availableCalendarFormats: widget.availableCalendarFormats,
-                calendarFormat: widget.calendarFormat,
-                locale: widget.locale,
-                onFormatButtonTap: (format) {
-                  assert(
-                    widget.onFormatChanged != null,
-                    'Using `FormatButton` without providing `onFormatChanged` will have no effect.',
-                  );
+          if (!widget.slidingHeader)
+            ValueListenableBuilder<DateTime>(
+              valueListenable: _focusedDay,
+              builder: (context, value, _) {
+                return CalendarHeader(
+                  headerTitleBuilder:
+                      widget.calendarBuilders.headerTitleBuilder,
+                  focusedMonth: value,
+                  onLeftChevronTap: _onLeftChevronTap,
+                  onRightChevronTap: _onRightChevronTap,
+                  onHeaderTap: () => widget.onHeaderTapped?.call(value),
+                  onHeaderLongPress: () =>
+                      widget.onHeaderLongPressed?.call(value),
+                  headerStyle: widget.headerStyle,
+                  availableCalendarFormats: widget.availableCalendarFormats,
+                  calendarFormat: widget.calendarFormat,
+                  locale: widget.locale,
+                  onFormatButtonTap: (format) {
+                    assert(
+                      widget.onFormatChanged != null,
+                      'Using `FormatButton` without providing `onFormatChanged` will have no effect.',
+                    );
 
-                  widget.onFormatChanged?.call(format);
-                },
-              );
-            },
-          ),
+                    widget.onFormatChanged?.call(format);
+                  },
+                );
+              },
+            ),
         Flexible(
           flex: widget.shouldFillViewport ? 1 : 0,
           child: TableCalendarBase(
+            size: MediaQuery.of(context).size,
             onCalendarCreated: (pageController) {
               _pageController = pageController;
               widget.onCalendarCreated?.call(pageController);
             },
+            headerStyle: widget.headerStyle,
             focusedDay: _focusedDay.value,
             calendarFormat: widget.calendarFormat,
             availableGestures: widget.availableGestures,

@@ -3,11 +3,16 @@
 
 import 'package:flutter/material.dart';
 import 'package:simple_gesture_detector/simple_gesture_detector.dart';
+import 'package:table_calendar/table_calendar.dart';
 
 import 'shared/utils.dart';
 import 'widgets/calendar_core.dart';
+import 'widgets/sliding_header.dart';
 
 class TableCalendarBase extends StatefulWidget {
+  /// Determines the visibility of calendar header.
+  final bool headerVisible;
+  final bool slidingHeader;
   final DateTime firstDay;
   final DateTime lastDay;
   final DateTime focusedDay;
@@ -33,12 +38,16 @@ class TableCalendarBase extends StatefulWidget {
   final SwipeCallback? onVerticalSwipe;
   final void Function(DateTime focusedDay)? onPageChanged;
   final void Function(PageController pageController)? onCalendarCreated;
+  final HeaderStyle headerStyle;
+  final Size? size;
 
   TableCalendarBase({
     Key? key,
+    this.size,
     required this.firstDay,
     required this.lastDay,
     required this.focusedDay,
+    required this.headerStyle,
     this.calendarFormat = CalendarFormat.month,
     this.dowBuilder,
     required this.dayBuilder,
@@ -68,6 +77,8 @@ class TableCalendarBase extends StatefulWidget {
     this.onVerticalSwipe,
     this.onPageChanged,
     this.onCalendarCreated,
+    this.headerVisible = true,
+    this.slidingHeader = true,
   })  : assert(!dowVisible || (dowHeight != null && dowBuilder != null)),
         assert(isSameDay(focusedDay, firstDay) || focusedDay.isAfter(firstDay)),
         assert(isSameDay(focusedDay, lastDay) || focusedDay.isBefore(lastDay)),
@@ -83,6 +94,7 @@ class _TableCalendarBaseState extends State<TableCalendarBase> {
   late DateTime _focusedDay;
   late int _previousIndex;
   late bool _pageCallbackDisabled;
+  late final ScrollController headerScrollController;
 
   @override
   void initState() {
@@ -94,10 +106,17 @@ class _TableCalendarBaseState extends State<TableCalendarBase> {
 
     final initialPage = _calculateFocusedPage(
         widget.calendarFormat, widget.firstDay, _focusedDay);
+    var width = widget.size!.width;
 
-    _pageController = PageController(initialPage: initialPage);
+    _pageController = PageController(initialPage: initialPage)
+      ..addListener(() {
+        var offset = _pageController.offset * 0.9;
+        headerScrollController.jumpTo(offset);
+      });
     widget.onCalendarCreated?.call(_pageController);
-
+    var initialScrollOffset = initialPage * width * 0.9;
+    headerScrollController =
+        ScrollController(initialScrollOffset: initialScrollOffset);
     _previousIndex = initialPage;
     _pageCallbackDisabled = false;
   }
@@ -180,70 +199,88 @@ class _TableCalendarBaseState extends State<TableCalendarBase> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        return SimpleGestureDetector(
-          onVerticalSwipe: _canScrollVertically ? widget.onVerticalSwipe : null,
-          swipeConfig: widget.simpleSwipeConfig,
-          child: ValueListenableBuilder<double>(
-            valueListenable: _pageHeight,
-            builder: (context, value, child) {
-              final height =
-                  constraints.hasBoundedHeight ? constraints.maxHeight : value;
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (widget.headerVisible && widget.slidingHeader)
+              SlidingHeader(
+                headerScrollController: headerScrollController,
+                pageController: _pageController,
+                pageCount: getPageCount(widget.calendarFormat, widget.firstDay,
+                    widget.lastDay, widget.startingDayOfWeek),
+                firstDay: widget.firstDay,
+                lastDay: widget.lastDay,
+                headerStyle: widget.headerStyle,
+                calendarFormat: widget.calendarFormat,
+              ),
+            SimpleGestureDetector(
+              onVerticalSwipe:
+                  _canScrollVertically ? widget.onVerticalSwipe : null,
+              swipeConfig: widget.simpleSwipeConfig,
+              child: ValueListenableBuilder<double>(
+                valueListenable: _pageHeight,
+                builder: (context, value, child) {
+                  final height = constraints.hasBoundedHeight
+                      ? constraints.maxHeight
+                      : value;
 
-              return AnimatedSize(
-                duration: widget.formatAnimationDuration,
-                curve: widget.formatAnimationCurve,
-                alignment: Alignment.topCenter,
-                child: SizedBox(
-                  height: height,
-                  child: child,
+                  return AnimatedSize(
+                    duration: widget.formatAnimationDuration,
+                    curve: widget.formatAnimationCurve,
+                    alignment: Alignment.topCenter,
+                    child: SizedBox(
+                      height: height,
+                      child: child,
+                    ),
+                  );
+                },
+                child: CalendarCore(
+                  constraints: constraints,
+                  pageController: _pageController,
+                  scrollPhysics: _canScrollHorizontally
+                      ? PageScrollPhysics()
+                      : NeverScrollableScrollPhysics(),
+                  firstDay: widget.firstDay,
+                  lastDay: widget.lastDay,
+                  startingDayOfWeek: widget.startingDayOfWeek,
+                  calendarFormat: widget.calendarFormat,
+                  previousIndex: _previousIndex,
+                  focusedDay: _focusedDay,
+                  sixWeekMonthsEnforced: widget.sixWeekMonthsEnforced,
+                  dowVisible: widget.dowVisible,
+                  dowHeight: widget.dowHeight,
+                  rowHeight: widget.rowHeight,
+                  dowDecoration: widget.dowDecoration,
+                  rowDecoration: widget.rowDecoration,
+                  tableBorder: widget.tableBorder,
+                  onPageChanged: (index, focusedMonth) {
+                    if (!_pageCallbackDisabled) {
+                      if (!isSameDay(_focusedDay, focusedMonth)) {
+                        _focusedDay = focusedMonth;
+                      }
+
+                      if (widget.calendarFormat == CalendarFormat.month &&
+                          !widget.sixWeekMonthsEnforced &&
+                          !constraints.hasBoundedHeight) {
+                        final rowCount = _getRowCount(
+                          widget.calendarFormat,
+                          focusedMonth,
+                        );
+                        _pageHeight.value = _getPageHeight(rowCount);
+                      }
+
+                      _previousIndex = index;
+                      widget.onPageChanged?.call(focusedMonth);
+                    }
+
+                    _pageCallbackDisabled = false;
+                  },
+                  dowBuilder: widget.dowBuilder,
+                  dayBuilder: widget.dayBuilder,
                 ),
-              );
-            },
-            child: CalendarCore(
-              constraints: constraints,
-              pageController: _pageController,
-              scrollPhysics: _canScrollHorizontally
-                  ? PageScrollPhysics()
-                  : NeverScrollableScrollPhysics(),
-              firstDay: widget.firstDay,
-              lastDay: widget.lastDay,
-              startingDayOfWeek: widget.startingDayOfWeek,
-              calendarFormat: widget.calendarFormat,
-              previousIndex: _previousIndex,
-              focusedDay: _focusedDay,
-              sixWeekMonthsEnforced: widget.sixWeekMonthsEnforced,
-              dowVisible: widget.dowVisible,
-              dowHeight: widget.dowHeight,
-              rowHeight: widget.rowHeight,
-              dowDecoration: widget.dowDecoration,
-              rowDecoration: widget.rowDecoration,
-              tableBorder: widget.tableBorder,
-              onPageChanged: (index, focusedMonth) {
-                if (!_pageCallbackDisabled) {
-                  if (!isSameDay(_focusedDay, focusedMonth)) {
-                    _focusedDay = focusedMonth;
-                  }
-
-                  if (widget.calendarFormat == CalendarFormat.month &&
-                      !widget.sixWeekMonthsEnforced &&
-                      !constraints.hasBoundedHeight) {
-                    final rowCount = _getRowCount(
-                      widget.calendarFormat,
-                      focusedMonth,
-                    );
-                    _pageHeight.value = _getPageHeight(rowCount);
-                  }
-
-                  _previousIndex = index;
-                  widget.onPageChanged?.call(focusedMonth);
-                }
-
-                _pageCallbackDisabled = false;
-              },
-              dowBuilder: widget.dowBuilder,
-              dayBuilder: widget.dayBuilder,
+              ),
             ),
-          ),
+          ],
         );
       },
     );
